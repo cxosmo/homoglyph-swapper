@@ -5,8 +5,8 @@ import logging
 import time
 
 # Global outputs
-output_list = []
-json_output_list = []
+OUTPUT_LIST = []
+JSON_OUTPUT_LIST = []
 
 # Logging config
 logging.basicConfig(level=logging.INFO, format="")
@@ -67,7 +67,7 @@ def homoglyph_generator(index_of_homoglyph):
                     # See https://docs.python.org/3/howto/unicode.html#unicode-literals-in-python-source-code
                     unicode_literal = str(homoglyph.encode("unicode_escape").decode())
                     raw_output = f"{''.join(character_list)}  \t The character {character} was replaced with {homoglyph} (Unicode literal: {unicode_literal})"
-                    output_list.append(raw_output)
+                    OUTPUT_LIST.append(raw_output)
                     if args.output_json:
                         json_output = {
                             "original_input": character,
@@ -75,38 +75,38 @@ def homoglyph_generator(index_of_homoglyph):
                             "output": f"{''.join(character_list)}",
                             "unicode_literal": unicode_literal,
                         }
-                        json_output_list.append(json_output)
+                        JSON_OUTPUT_LIST.append(json_output)
                 else:
                     raw_output = f"{''.join(character_list)}"
-                    output_list.append(raw_output)
+                    OUTPUT_LIST.append(raw_output)
                     if args.output_json:
                         json_output = {"output": f"{''.join(character_list)}"}
-                        json_output_list.append(json_output)
+                        JSON_OUTPUT_LIST.append(json_output)
 
 
-def output_controller(output_list, json_output_list):
+def output_controller(OUTPUT_LIST, JSON_OUTPUT_LIST):
     """
     Outputs homoglyph swaps to terminal/txt/json depending on presence of -oN/-oJ flags.
-    output_list: list containing homoglyph-swapped permutations of original string input.
-    json_output_list: json containing homoglyph-swapped permutations of original string input.
+    OUTPUT_LIST: list containing homoglyph-swapped permutations of original string input.
+    JSON_OUTPUT_LIST: json containing homoglyph-swapped permutations of original string input.
     """
     if args.output_normal:
         args.output_normal = filename_creator("txt", args.output_normal, "homoglyph-swapper")
-        [log.info(line) for line in output_list]
+        [log.info(line) for line in OUTPUT_LIST]
         with open(args.output_normal, "a") as f:
-            [f.write(f"{line}\n") for line in output_list]
+            [f.write(f"{line}\n") for line in OUTPUT_LIST]
             f.close()
     elif args.output_json:
         args.output_json = filename_creator("json", args.output_json, "homoglyph-swapper")
         if args.verbose:
-            log.info(json.dumps(json_output_list, indent=4, ensure_ascii=False))
-            save_json(args.output_json, json_output_list)
+            log.info(json.dumps(JSON_OUTPUT_LIST, indent=4, ensure_ascii=False))
+            save_json(args.output_json, JSON_OUTPUT_LIST)
         else:
-            json_output = {"output": output_list}
+            json_output = {"output": OUTPUT_LIST}
             log.info(json.dumps(json_output, indent=4, ensure_ascii=False))
             save_json(args.output_json, json_output)
     else:
-        [log.info(line) for line in output_list]
+        [log.info(line) for line in OUTPUT_LIST]
 
 
 def filename_creator(extension, output_type, modifier=""):
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-oJ",
         "--output_json",
-        help="Output JSON-formatted results to (optionally specified) file (defaults to homoglyph_swapper-YYYYMMDD-HHMMSS.json)",
+        help="Output JSON-formatted results to (optionally specified) file (defaults to homoglyph-swapper-YYYYMMDD-HHMMSS.json)",
         action="store",
         nargs="?",
         const=" ",
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-oN",
         "--output_normal",
-        help="Output normal-formatted results to (optionally specified) file (defaults to homoglyph_swapper-YYYYMMDD-HHMMSS.txt)",
+        help="Output normal-formatted results to (optionally specified) file (defaults to homoglyph-swapper-YYYYMMDD-HHMMSS.txt)",
         action="store",
         nargs="?",
         const=" ",
@@ -168,4 +168,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     list(map(homoglyph_generator, list(range(len(args.input)))))
-    output_controller(output_list, json_output_list)
+    output_controller(OUTPUT_LIST, JSON_OUTPUT_LIST)
